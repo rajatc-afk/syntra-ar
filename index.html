@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Syntra × ZARA · Man Gold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{ --gold:#e0a62a; --ink:#16130f; --cream:#fbf6ec; --line:rgba(255,255,255,.18); }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; height:100%; background:#0c0b0a; color:#fff; font-family:"Lato",system-ui,-apple-system,"Segoe UI",sans-serif; overflow:hidden; overscroll-behavior:none; }
+  #stage{ position:fixed; inset:0; touch-action:none; }
+  #stage video{ object-fit:cover; }
+  .top{ position:fixed; top:0; left:0; right:0; padding:calc(14px + env(safe-area-inset-top)) 18px 10px; display:flex; justify-content:space-between; align-items:center; pointer-events:none; background:linear-gradient(rgba(0,0,0,.45),transparent); z-index:5; }
+  .brand{ letter-spacing:.32em; font-size:12px; font-weight:700; }
+  .brand i{ font-style:italic; letter-spacing:0; font-weight:300; opacity:.8; margin-left:8px; }
+  #hint{ position:fixed; left:50%; top:calc(64px + env(safe-area-inset-top)); transform:translateX(-50%); background:rgba(20,16,10,.72); border:1px solid var(--line); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:9px 16px; border-radius:999px; font-size:13px; letter-spacing:.02em; z-index:5; transition:opacity .4s; white-space:nowrap; }
+  #hint.off{ opacity:0; pointer-events:none; }
+  #sheet{ position:fixed; left:0; right:0; bottom:0; z-index:6; background:rgba(251,246,236,.96); color:var(--ink); border-radius:22px 22px 0 0; padding:10px 20px calc(18px + env(safe-area-inset-bottom)); transform:translateY(calc(100% - 78px)); transition:transform .35s cubic-bezier(.2,.8,.2,1); box-shadow:0 -10px 40px rgba(0,0,0,.35); max-height:62vh; overflow:auto; }
+  #sheet.open{ transform:none; }
+  #sheet .grab{ width:42px; height:4px; border-radius:2px; background:rgba(0,0,0,.2); margin:0 auto 10px; }
+  #sheet h1{ margin:0; font-family:"Playfair Display",Georgia,serif; font-weight:500; font-size:26px; line-height:1.1; }
+  #sheet .meta{ margin-top:4px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8a6a2c; }
+  .tier{ margin-top:16px; }
+  .tier h2{ margin:0 0 6px; font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:#7a6a52; font-weight:700; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ border:1px solid #d9c9a6; background:#fff; color:var(--ink); padding:7px 12px; border-radius:999px; font:inherit; font-size:14px; display:flex; align-items:center; gap:7px; }
+  .chip b{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .chip.on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  #detail{ margin-top:16px; padding:14px 16px; border-radius:14px; background:#fff; border:1px solid #eadfc7; min-height:76px; }
+  #detail strong{ display:block; font-family:"Playfair Display",Georgia,serif; font-size:19px; font-weight:500; }
+  #detail span{ font-size:14px; line-height:1.5; color:#4b4234; }
+  #intro{ position:fixed; inset:0; z-index:10; background:radial-gradient(circle at 50% 35%,#2b2113,#0c0b0a 70%); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:28px; gap:14px; }
+  #intro .kicker{ letter-spacing:.4em; font-size:12px; opacity:.75; }
+  #intro h1{ font-family:"Playfair Display",Georgia,serif; font-weight:400; font-size:44px; margin:0; line-height:1.05; }
+  #intro p{ max-width:310px; margin:0; font-size:15px; line-height:1.55; opacity:.82; }
+  .btn{ margin-top:10px; background:var(--gold); color:#1a1306; border:0; border-radius:999px; padding:14px 30px; font:inherit; font-weight:700; letter-spacing:.06em; font-size:15px; }
+  .ghost{ background:none; border:0; color:#fff; opacity:.7; text-decoration:underline; font:inherit; font-size:13px; margin-top:4px; }
+  #err{ color:#ffb199; font-size:13px; min-height:18px; }
+  #load{ position:fixed; inset:0; z-index:9; display:none; align-items:center; justify-content:center; background:#0c0b0a; font-size:14px; letter-spacing:.2em; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<div class="top"><div class="brand">SYNTRA<i>× ZARA</i></div></div>
+<div id="hint" class="off">Point your camera at the drawing</div>
+
+<section id="sheet">
+  <div class="grab"></div>
+  <h1 id="sTitle"></h1>
+  <div class="meta" id="sMeta"></div>
+  <div id="tiers"></div>
+  <div id="detail"><span>Tap an ingredient, in the air or here, to read about it. Drag to spin the bottle.</span></div>
+</section>
+
+<div id="load">OPENING YOUR SCENT…</div>
+<div id="intro">
+  <div class="kicker">SYNTRA · A SCENT, FOUND BY YOU</div>
+  <h1>Man Gold</h1>
+  <p>Hold your phone over the drawing on your ticket. Your scent will rise out of it.</p>
+  <button class="btn" id="go">Open camera</button>
+  <button class="ghost" id="view3d">View in 3D without camera</button>
+  <div id="err"></div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MODELS, normalise } from './ingredients.js';
+import { makeBottle } from './bottle.js';
+import { makeSparkles, makeShockRing } from './fx.js';
+
+/* ───────────── Edit this block to change the scent ─────────────
+   Each note is [name, dot colour, one-line description, optional 'assets/models/x.glb'].
+   If you add a .glb path, that real model replaces the built-in 3D ingredient. */
+const SCENT = {
+  name: 'Man Gold', house: 'ZARA', label: ['ZARA MAN', 'GOLD'],
+  meta: 'Warm · Masculine · Everyday · 8 hours',
+  tiers: [
+    { name: 'Top',   z: 0.58, r: 0.40, dir:  1, speed: 0.45, notes: [
+      ['Cardamom',    '#9ec56a', 'Warm, green and lightly citrusy spice.'],
+      ['Bergamot',    '#d8e24f', 'Bright, sparkling citrus with a floral edge.'],
+      ['Black Pepper','#9a9a9a', 'Dry, sharp spice that lifts the opening.'] ] },
+    { name: 'Heart', z: 0.38, r: 0.37, dir: -1, speed: 0.34, notes: [
+      ['Lavender',    '#a58be0', 'Aromatic, herbal and softly floral.'],
+      ['Cinnamon',    '#c8702a', 'Sweet, warm spice that deepens the heart.'],
+      ['Iris',        '#7f8cf0', 'Powdery, elegant and slightly earthy.'] ] },
+    { name: 'Base',  z: 0.17, r: 0.34, dir:  1, speed: 0.26, notes: [
+      ['Amber',       '#f0a92e', 'Warm, resinous and glowing.'],
+      ['Tonka',       '#a8683f', 'Sweet and creamy, like vanilla with almond.'],
+      ['Vetiver',     '#7d9a58', 'Earthy, smoky and woody. It is what lingers.'] ] }
+  ]
+};
+const TARGET_FILE = './assets/targets.mind';
+const TARGET_IMAGE = './assets/target.png';
+const ING_SIZE = 0.2;   // ingredient size, drawing width = 1
+/* ───────────────────────────────────────────────────────────── */
+
+const $ = s => document.querySelector(s);
+const stage = $('#stage');
+const params = new URLSearchParams(location.search);
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const eOutCubic = t => 1 - Math.pow(1 - t, 3);
+const eOutBack = t => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const eOutElastic = t => t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1;
+
+function textSprite(text){
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = '700 58px Lato, Helvetica, Arial, sans-serif';
+  g.lineWidth = 12; g.strokeStyle = 'rgba(10,8,5,.85)'; g.strokeText(text, 256, 66);
+  g.fillStyle = '#fff'; g.fillText(text, 256, 66);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthTest: false, opacity: 0 }));
+  s.scale.set(0.2, 0.05, 1); s.renderOrder = 10; return s;
+}
+function softShadow(){
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(0,0,0,.75)'); gr.addColorStop(0.6, 'rgba(0,0,0,.28)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.5), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, opacity: 0 }));
+  m.position.z = 0.002; return m;
+}
+
+/* ---------- the whole experience (units: drawing width = 1, +Z points out of the paper) ---------- */
+async function build(){
+  const root = new THREE.Group();
+  const bottle = await makeBottle(SCENT.label);
+  const bottleRoot = new THREE.Group(); bottleRoot.rotation.x = Math.PI / 2;
+  const spin = new THREE.Group(); spin.add(bottle.group); bottleRoot.add(spin); bottleRoot.scale.setScalar(0.0001); root.add(bottleRoot);
+
+  const shadow = softShadow(); root.add(shadow);
+  const halo = new THREE.Mesh(new THREE.RingGeometry(0.41, 0.418, 128), new THREE.MeshBasicMaterial({ color: 0xe0a62a, transparent: true, opacity: 0 })); halo.position.z = 0.003; root.add(halo);
+  const rings = [makeShockRing(), makeShockRing()]; rings.forEach(r => root.add(r));
+  const sparkles = makeSparkles(); root.add(sparkles.points);
+
+  const ringsRoot = new THREE.Group(); root.add(ringsRoot);
+  const pickables = [], items = {}, tiers = [];
+  const gltf = new GLTFLoader();
+  SCENT.tiers.forEach((tier, ti) => {
+    const grp = new THREE.Group(); grp.position.z = tier.z; ringsRoot.add(grp);
+    const pts = []; for (let i = 0; i < 128; i++){ const a = i / 128 * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * tier.r, Math.sin(a) * tier.r, 0)); }
+    const guide = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xe9c46a, transparent: true, opacity: 0 })); grp.add(guide);
+    const list = [];
+    tier.notes.forEach(([name, color, blurb, glb], ni) => {
+      const a = ni / tier.notes.length * Math.PI * 2 + ti * 0.7, holder = new THREE.Group(), tumble = new THREE.Group();
+      grp.add(holder); holder.add(tumble);
+      tumble.add(normalise(MODELS[name](), 1));
+      if (glb) gltf.loadAsync(glb).then(r => { tumble.clear(); tumble.add(normalise(r.scene, 1)); }).catch(() => console.warn('model not found:', glb));
+      const hit = new THREE.Mesh(new THREE.SphereGeometry(0.75, 8, 6), new THREE.MeshBasicMaterial({ visible: false })); hit.userData.key = name; tumble.add(hit); pickables.push(hit);
+      const lbl = textSprite(name); lbl.position.z = 0.17; lbl.userData.key = name; holder.add(lbl); pickables.push(lbl);
+      const it = { name, color, blurb, tier: tier.name, holder, tumble, label: lbl, ox: Math.cos(a) * tier.r, oy: Math.sin(a) * tier.r, hl: 0 };
+      items[name] = it; list.push(it);
+    });
+    tiers.push({ ...tier, grp, guide, list });
+  });
+
+  let userSpin = 0, active = null, rt = 0, revealing = false, b1 = false, b2 = false;
+  const origin = new THREE.Vector3();
+  function setActive(k){ active = k; }
+  return {
+    root, pickables, items, setActive,
+    reveal(){ if (revealing) return; rt = 0; revealing = true; b1 = b2 = false; },
+    reset(){ revealing = false; rt = 0; b1 = b2 = false; },
+    skipTo(s){ revealing = true; rt = s; b1 = b2 = true; },
+    addSpin(d){ userSpin += d; },
+    update(t, dt){
+      if (revealing) rt += dt;
+      // bottle: stretches up out of the drawing with an elastic overshoot, spinning as it lands
+      const pb = clamp01((rt - 0.15) / 1.3), up = 0.3 * eOutElastic(pb), lat = 0.3 * (0.55 + 0.45 * eOutBack(pb));
+      bottleRoot.scale.set(Math.max(lat, 1e-4), Math.max(up, 1e-4), Math.max(lat, 1e-4));
+      spin.rotation.y = userSpin + t * 0.22 + (1 - eOutCubic(pb)) * (-Math.PI * 2.2);
+      // cap pops up and settles back
+      const cu = (rt - 1.05) / 0.8, bump = cu > 0 && cu < 1 ? Math.sin(Math.PI * cu) : 0;
+      bottle.cap.position.y = bottle.capRest + 0.28 * bump; bottle.cap.rotation.z = 0.22 * bump;
+      halo.material.opacity = 0.55 * eOutCubic(pb);
+      shadow.material.opacity = 0.7 * eOutCubic(pb); shadow.scale.setScalar(0.6 + 0.4 * eOutCubic(pb));
+      rings.forEach((r, i) => { const u = clamp01((rt - (0.05 + 0.3 * i)) / 0.95); r.scale.setScalar(0.04 + (0.7 + 0.15 * i) * eOutCubic(u)); r.material.opacity = rt > 0 ? 0.9 * (1 - u) * (u > 0 ? 1 : 0) : 0; });
+      // sparkles
+      if (rt > 0.15 && !b1){ b1 = true; origin.set(0, 0, 0.02); sparkles.burst(95, origin, 0.55, 0.5); }
+      if (rt > 1.05 && !b2){ b2 = true; origin.set(0, 0, 0.3); sparkles.burst(70, origin, 0.42, 0.8); }
+      if (revealing && rt > 2 && Math.random() < dt * 14){ const a = Math.random() * 6.283, r = 0.18 + Math.random() * 0.25; origin.set(Math.cos(a) * r, Math.sin(a) * r, 0.05 + Math.random() * 0.5); sparkles.burst(1, origin, 0.03, 1); }
+      sparkles.update(dt);
+      // ingredients fly out of the bottle one by one, then orbit and tumble
+      let gi = 0;
+      for (const tier of tiers){
+        tier.grp.rotation.z = t * tier.speed * tier.dir;
+        tier.guide.material.opacity = 0.3 * eOutCubic(clamp01((rt - 0.9) / 1.2));
+        for (const it of tier.list){
+          const u = clamp01((rt - (0.95 + 0.14 * gi)) / 1.0), e = eOutCubic(u);
+          it.holder.visible = u > 0.001;
+          it.holder.position.set(it.ox * e, it.oy * e, Math.sin(t * 1.4 + gi * 1.3) * 0.012 * u);
+          it.hl += ((it.name === active ? 1 : 0) - it.hl) * Math.min(1, dt * 8);
+          it.tumble.scale.setScalar(Math.max(ING_SIZE * eOutBack(u) * (1 + 0.55 * it.hl), 1e-4));
+          it.tumble.rotation.set(t * 0.5 + gi, t * 0.8 + gi * 2 + (1 - u) * 7, 0.3 * Math.sin(t + gi));
+          it.label.material.opacity = u; const k = 1 + 0.3 * it.hl; it.label.scale.set(0.2 * k, 0.05 * k, 1);
+          gi++;
+        }
+      }
+      ringsRoot.rotation.z = userSpin;
+    }
+  };
+}
+
+/* ---------- UI ---------- */
+const exp = await build();
+window.__exp = exp;
+$('#sTitle').textContent = SCENT.name; $('#sMeta').textContent = SCENT.house + ' · ' + SCENT.meta;
+const tiersEl = $('#tiers');
+SCENT.tiers.forEach(tier => {
+  const d = document.createElement('div'); d.className = 'tier'; d.innerHTML = `<h2>${tier.name}</h2><div class="chips"></div>`;
+  tier.notes.forEach(([name, color]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.dataset.key = name; b.innerHTML = `<b style="background:${color}"></b>${name}`;
+    b.onclick = () => select(name); d.querySelector('.chips').appendChild(b);
+  });
+  tiersEl.appendChild(d);
+});
+function select(key){
+  exp.setActive(key); const it = exp.items[key];
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.key === key));
+  $('#detail').innerHTML = `<strong>${it.name}</strong><span>${it.tier} note · ${it.blurb}</span>`;
+  $('#sheet').classList.add('open');
+}
+$('#sheet .grab').onclick = $('#sTitle').onclick = () => $('#sheet').classList.toggle('open');
+
+/* tap = pick an ingredient, drag = spin */
+function bindPointer(el, getCamera){
+  let down = null, last = null;
+  const ray = new THREE.Raycaster(), v = new THREE.Vector2();
+  el.addEventListener('pointerdown', e => { if (e.target.closest('#sheet')) return; down = { x: e.clientX, y: e.clientY }; last = { x: e.clientX }; });
+  el.addEventListener('pointermove', e => { if (!down) return; exp.addSpin((e.clientX - last.x) * 0.012); last.x = e.clientX; });
+  el.addEventListener('pointerup', e => {
+    if (!down) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null; if (moved > 8) return;
+    const r = el.getBoundingClientRect(); v.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(v, getCamera()); const hit = ray.intersectObjects(exp.pickables, false)[0];
+    if (hit) select(hit.object.userData.key);
+  });
+}
+
+/* ---------- lights + reflections ---------- */
+function setupLook(renderer, scene){
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+  const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x665544, 0.7));
+  const d = new THREE.DirectionalLight(0xfff1dc, 1.8); d.position.set(0.6, -1, 1.6); scene.add(d);
+  const r = new THREE.DirectionalLight(0xffcf8a, 1.1); r.position.set(-1, 1, 1); scene.add(r);
+}
+
+/* ---------- 3D preview (no camera) ---------- */
+async function startPreview(lab = false){
+  $('#intro').style.display = 'none';
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0x14110d); stage.appendChild(renderer.domElement);
+  const scene = new THREE.Scene(); setupLook(renderer, scene);
+  const cam = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.01, 50); cam.up.set(0, 0, 1);
+  const ctl = new OrbitControls(cam, renderer.domElement); ctl.enableDamping = true;
+  if (lab){
+    cam.position.set(0, -4.2, 0.4); ctl.target.set(0, 0, 0);
+    Object.keys(MODELS).forEach((k, i) => { const m = normalise(MODELS[k](), 1); m.position.set((i % 3 - 1) * 1.25, 0, (1 - Math.floor(i / 3)) * 1.25); m.rotation.x = Math.PI / 2; m.userData.spin = true; scene.add(m); });
+    $('#sheet').style.display = 'none';
+  } else {
+    cam.position.set(0, -1.9, 1.15); ctl.target.set(0, 0, 0.28);
+    const tex = await new THREE.TextureLoader().loadAsync(TARGET_IMAGE).catch(() => null); if (tex) tex.colorSpace = THREE.SRGBColorSpace;
+    const paper = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex || null, color: tex ? 0xffffff : 0xf3ead8 })); scene.add(paper); scene.add(exp.root);
+    const ray = new THREE.Raycaster(), v = new THREE.Vector2(); let d0 = null;
+    renderer.domElement.addEventListener('pointerdown', e => d0 = { x: e.clientX, y: e.clientY });
+    renderer.domElement.addEventListener('pointerup', e => { if (!d0 || Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > 6) return;
+      v.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(v, cam);
+      const h = ray.intersectObjects(exp.pickables, false)[0]; if (h) select(h.object.userData.key); });
+    exp.reveal();
+  }
+  ctl.update();
+  addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); });
+  let last = performance.now();
+  renderer.setAnimationLoop(now => { const dt = Math.min((now - last) / 1000, 0.25); last = now;
+    if (lab) scene.children.forEach(o => { if (o.userData.spin) o.rotation.y = now / 1500; }); else exp.update(now / 1000, dt);
+    ctl.update(); renderer.render(scene, cam); });
+  window.__ready = true;
+}
+
+/* ---------- AR ---------- */
+async function startAR(){
+  $('#err').textContent = ''; $('#load').style.display = 'flex';
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera needs a secure (https) page.');
+    const { MindARThree } = await import('mindar-image-three');
+    const mindar = new MindARThree({ container: stage, imageTargetSrc: TARGET_FILE, uiLoading: 'no', uiScanning: 'no', uiError: 'no', maxTrack: 1, filterMinCF: 0.0005, filterBeta: 40 });
+    const { renderer, scene, camera } = mindar; setupLook(renderer, scene);
+    const anchor = mindar.addAnchor(0); anchor.group.add(exp.root);
+    const hint = $('#hint'); let lostTimer = null;
+    anchor.onTargetFound = () => { clearTimeout(lostTimer); hint.classList.add('off'); exp.reveal(); };
+    anchor.onTargetLost  = () => { hint.textContent = 'Find the drawing again'; hint.classList.remove('off'); clearTimeout(lostTimer); lostTimer = setTimeout(() => exp.reset(), 3000); };
+    await mindar.start();
+    $('#intro').style.display = 'none'; $('#load').style.display = 'none'; hint.classList.remove('off');
+    bindPointer(stage, () => camera);
+    let last = performance.now();
+    renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min((now - last) / 1000, 0.25); last = now; exp.update(now / 1000, dt); renderer.render(scene, camera); });
+  } catch (e) {
+    console.error(e); $('#load').style.display = 'none';
+    const msg = (e && e.message) || String(e || 'no camera found');
+    $('#err').textContent = /Permission|NotAllowed|denied|undefined|no camera/i.test(msg) ? 'The camera could not open. Allow camera access in your browser settings, or view in 3D.' : 'Could not start the camera (' + msg + '). You can view in 3D instead.';
+  }
+}
+
+$('#go').onclick = startAR;
+$('#view3d').onclick = () => startPreview();
+if (params.has('lab')) startPreview(true); else if (params.has('preview')) startPreview();
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntra ticket · Man Gold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  /* 80 mm thermal-roll ticket. Print at 100% scale, no margins. */
+  @page { size: 80mm 216mm; margin: 0; }
+  :root { --ink:#000; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #e9e7e3; }
+  body { font-family: Inter, Helvetica, Arial, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .ticket { width: 80mm; min-height: 216mm; margin: 10mm auto; background: #fff; padding: 7mm 6.5mm 6mm; text-align: center; box-shadow: 0 6px 30px rgba(0,0,0,.18); }
+  .serif { font-family: "Instrument Serif", "Times New Roman", serif; font-weight: 400; }
+  .it { font-style: italic; }
+  .caps { text-transform: uppercase; font-weight: 600; }
+  hr { border: 0; border-top: .35mm solid var(--ink); margin: 0; }
+
+  .brand { font-weight: 700; font-size: 4.3mm; letter-spacing: .55em; margin-right: -.55em; line-height: 1; }
+  .tag { font-size: 4.3mm; margin: .6mm 0 2.6mm; }
+  .your { font-size: 2.55mm; letter-spacing: .38em; margin: 3.4mm -.38em 0 0; }
+  .name { font-size: 13.2mm; line-height: .95; margin: .8mm 0 .4mm; letter-spacing: -.01em; }
+  .house { font-size: 2.45mm; letter-spacing: .5em; margin-right: -.5em; }
+  .mood { font-size: 6.1mm; margin: 2.2mm 0 .6mm; line-height: 1; }
+  .facets { font-size: 2.95mm; font-weight: 600; margin-bottom: 2.6mm; }
+
+  .notes { display: grid; grid-template-columns: auto 1fr; row-gap: 2.1mm; column-gap: 3mm; padding: 2.6mm 0 2.8mm; text-align: left; align-items: baseline; }
+  .notes .k { font-size: 2.55mm; letter-spacing: .3em; font-weight: 600; }
+  .notes .v { font-size: 2.45mm; font-weight: 500; text-align: right; }
+
+  .art { margin: 3.2mm auto 0; width: 64mm; height: 64mm; display: block; image-rendering: pixelated; }
+  .lives { font-size: 4.2mm; margin: 1.6mm 0 1.6mm; }
+  #qr { width: 31mm; height: 31mm; margin: 0 auto; }
+  #qr svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+  .steps { font-size: 2.75mm; font-weight: 600; line-height: 1.45; margin: 2mm 0 2.4mm; }
+  .date { font-size: 2.55mm; font-weight: 600; margin-top: 2.6mm; }
+  .thanks { font-size: 4.3mm; margin-top: .4mm; }
+
+  /* screen-only controls */
+  .panel { max-width: 80mm; margin: 6mm auto 0; font: 13px/1.4 Inter, sans-serif; }
+  .panel input { width: 100%; padding: 8px; font: inherit; border: 1px solid #bbb; border-radius: 6px; }
+  .panel button { margin-top: 8px; padding: 9px 14px; border: 0; border-radius: 6px; background: #111; color: #fff; font: inherit; cursor: pointer; }
+  .panel .warn { color: #b3261e; margin-top: 6px; }
+  @media print { html, body { background: #fff; } .panel { display: none; } .ticket { margin: 0; box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="panel">
+  <label>QR link (the address where the <b>syntra-ar</b> folder is published)</label>
+  <input id="url">
+  <div class="warn" id="warn"></div>
+  <button onclick="print()">Print / Save as PDF</button>
+</div>
+
+<main class="ticket">
+  <div class="brand">SYNTRA</div>
+  <div class="tag serif it">a scent, found by you</div>
+  <hr>
+  <div class="your caps">Your scent</div>
+  <div class="name serif">Man Gold</div>
+  <div class="house caps">Zara</div>
+  <div class="mood serif it">Mood · Warm</div>
+  <div class="facets">Masculine · Everyday · 8 hours</div>
+  <hr>
+  <div class="notes">
+    <div class="k">TOP</div><div class="v">Cardamom · Bergamot · Black Pepper</div>
+    <div class="k">HEART</div><div class="v">Lavender · Cinnamon · Iris</div>
+    <div class="k">BASE</div><div class="v">Amber · Tonka · Vetiver</div>
+  </div>
+  <hr>
+  <!-- the printed drawing must be the same file the AR tracks (assets/target.png) -->
+  <img class="art" src="assets/target.png" alt="Syntra · Man Gold drawing">
+  <div class="lives serif it">Your scent lives in this drawing</div>
+  <div id="qr"></div>
+  <div class="steps">1&nbsp; Scan the code with your phone camera<br>2&nbsp; Point it at the drawing above</div>
+  <hr>
+  <div class="date" id="date">30 Sept 2026 · 14:00</div>
+  <div class="thanks serif it">Thank you for discovering with us</div>
+</main>
+
+<script>
+  const DEFAULT_URL = 'https://rajatc-afk.github.io/syntra-ar/';
+  const p = new URLSearchParams(location.search), input = document.getElementById('url');
+  input.value = p.get('url') || DEFAULT_URL;
+  if (p.get('date')) document.getElementById('date').textContent = p.get('date');
+  function draw(){
+    const url = input.value.trim(), q = qrcode(0, 'M'); q.addData(url); q.make();
+    document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    document.getElementById('warn').textContent = /^https:\/\//.test(url) ? (url === DEFAULT_URL ? 'Default address: publish the site at exactly this address, or paste your real one.' : '') : 'The link must start with https:// or the camera will not open.';
+  }
+  input.addEventListener('input', draw); draw();
+</script>
+</body>
+</html>
